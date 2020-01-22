@@ -1,0 +1,12 @@
+{
+    "domain": "solaredge_modbus",
+    "name": "SolarEdge Modbus",
+    "documentation":"",
+    "dependencies": [],
+    "codeowners": [],
+    "requirements": [
+        "pymodbusTCP >= 0.1.8",
+        "pymodbus"
+        ]
+    }
+    
