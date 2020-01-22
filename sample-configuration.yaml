@@ -1,0 +1,68 @@
+
+solaredge_modbus:
+    name: 'SolarEdge Modbus'
+    host: 192.168.1.111
+    port: 1502
+
+utility_meter:
+    solar_production_daily:
+      source: sensor.solaredge_lifetime_production
+      cycle: daily
+    solar_production_hourly:
+      source: sensor.solaredge_lifetime_production
+      cycle: hourly
+    solar_production_weekly:
+      source: sensor.solaredge_lifetime_production
+      cycle: weekly
+    solar_production_monthly:
+      source: sensor.solaredge_lifetime_production
+      cycle: monthly
+    
+sensor:
+  - platform: template
+    sensors:
+    solaredge_ac_total_current:
+        value_template: "{{ state_attr('sensor.solaredge_modbus', 'ac_total_current') }}"
+        unit_of_measurement: 'A'
+    solaredge_ac_current_phase_a:
+        value_template: "{{ state_attr('sensor.solaredge_modbus', 'ac_current_phase_a') }}"
+        unit_of_measurement: 'A'
+    solaredge_ac_current_phase_b:
+        value_template: "{{ state_attr('sensor.solaredge_modbus', 'ac_current_phase_b') }}"
+        unit_of_measurement: 'A'
+    solaredge_ac_current_phase_c:
+        value_template: "{{ state_attr('sensor.solaredge_modbus', 'ac_current_phase_c') }}"
+        unit_of_measurement: 'A'
+    solaredge_ac_current_voltage_a:
+        value_template: "{{ state_attr('sensor.solaredge_modbus', 'ac_voltage_phase_a') }}"
+        unit_of_measurement: 'V'
+    solaredge_ac_current_voltage_b:
+        value_template: "{{ state_attr('sensor.solaredge_modbus', 'ac_voltage_phase_b') }}"
+        unit_of_measurement: 'V'
+    solaredge_ac_current_voltage_c:
+        value_template: "{{ state_attr('sensor.solaredge_modbus', 'ac_voltage_phase_c') }}"
+        unit_of_measurement: 'V'
+    solaredge_ac_power_output:
+        value_template: "{{ state_attr('sensor.solaredge_modbus', 'ac_power_output') }}"
+        unit_of_measurement: 'W'
+    solaredge_dc_current:
+        value_template: "{{ state_attr('sensor.solaredge_modbus', 'dc_current') }}"
+        unit_of_measurement: 'A'
+    solaredge_dc_voltage:
+        value_template: "{{ state_attr('sensor.solaredge_modbus', 'dc_voltage') }}"
+        unit_of_measurement: 'V'
+    solaredge_dc_power_input:
+        value_template: "{{ state_attr('sensor.solaredge_modbus', 'dc_power_input') }}"
+        unit_of_measurement: 'W'
+    solaredge_heatsink_temp:
+        value_template: "{{ state_attr('sensor.solaredge_modbus', 'heat_sink_temperature') }}"
+        unit_of_measurement: '°C'
+    solaredge_inverter_efficiency:
+        value_template: "{{ state_attr('sensor.solaredge_modbus', 'computed_inverter_efficiency') }}"
+        unit_of_measurement: '%'
+    solaredge_ac_frequency:
+        value_template: "{{ state_attr('sensor.solaredge_modbus', 'ac_frequency') }}"
+        unit_of_measurement: 'Hz'
+    solaredge_lifetime_production:
+        value_template: "{{ (state_attr('sensor.solaredge_modbus', 'ac_lifetimeproduction') / 1000.0) | round(2) }}"
+        unit_of_measurement: 'kWh'
