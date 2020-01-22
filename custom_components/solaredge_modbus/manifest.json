@@ -1,7 +1,7 @@
 {
     "domain": "solaredge_modbus",
     "name": "SolarEdge Modbus",
-    "documentation":"",
+    "documentation":"https://github.com/erikarenhill/solaredge-modbus-hass",
     "dependencies": [],
     "codeowners": [],
     "requirements": [
