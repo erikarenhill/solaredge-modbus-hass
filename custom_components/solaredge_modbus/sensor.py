@@ -174,6 +174,9 @@ class SolarEdgeModbusSensor(Entity):
                     data.skip_bytes(4)
                     temp_sink_scalefactor = 10 ** data.decode_16bit_int()
                     values['heat_sink_temperature'] = self.round(temp_sink * temp_sink_scalefactor)
+		
+                    #40108 Status
+                    values['status'] = data.decode_16bit_uint()
 
                     #calculate efficiency
                     if values['dc_power_input'] > 0:
