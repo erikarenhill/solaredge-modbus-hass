@@ -33,6 +33,10 @@ sensor:
     solaredge_ac_current_phase_c:
         value_template: "{{ state_attr('sensor.solaredge_modbus', 'ac_current_phase_c') }}"
         unit_of_measurement: 'A'
+    solaredge_ac_voltage_phase_ab:
+        friendly_name: "SolarEdge AC Output Voltage"
+        value_template: "{{ state_attr('sensor.solaredge_modbus', 'ac_voltage_phase_ab') }}"
+        unit_of_measurement: 'V'
     solaredge_ac_current_voltage_a:
         value_template: "{{ state_attr('sensor.solaredge_modbus', 'ac_voltage_phase_a') }}"
         unit_of_measurement: 'V'
@@ -66,3 +70,25 @@ sensor:
     solaredge_lifetime_production:
         value_template: "{{ (state_attr('sensor.solaredge_modbus', 'ac_lifetimeproduction') / 1000.0) | round(2) }}"
         unit_of_measurement: 'kWh'
+    status:
+        friendly_name: "SolarEdge Status"
+        value_template: >-
+          {% if state_attr('sensor.solaredge_modbus', 'status') == 1 %}
+            Off
+          {% elif state_attr('sensor.solaredge_modbus', 'status') == 2 %}
+            Sleep
+          {% elif state_attr('sensor.solaredge_modbus', 'status') == 3 %}
+            Wake-Up
+          {% elif state_attr('sensor.solaredge_modbus', 'status') == 4 %}
+            Working
+          {% elif state_attr('sensor.solaredge_modbus', 'status') == 5 %}
+            Throttled
+          {% elif state_attr('sensor.solaredge_modbus', 'status') == 6 %}
+            Shut-Down
+          {% elif state_attr('sensor.solaredge_modbus', 'status') == 7 %}
+            Fault
+          {% elif state_attr('sensor.solaredge_modbus', 'status') == 8 %}
+            Maintenance
+          {% else %}
+            Unknown
+          {% endif %}
