@@ -186,8 +186,8 @@ class SolarEdgeModbusSensor(Entity):
                     self.async_schedule_update_ha_state()
 
                 else:
-                    if client.last_error() > 0:
-                        _LOGGER.error(f'error {client.last_error()}')
+                    if self._client.last_error() > 0:
+                        _LOGGER.error(f'error {self._client.last_error()}')
 
             except Exception as e:
                 _LOGGER.error(f'exception: {e}')
