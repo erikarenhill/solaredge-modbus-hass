@@ -87,8 +87,11 @@ class SolarEdgeModbusSensor(Entity):
                     values['ac_current_phase_b'] = self.round(ac_current_phase_b * ac_current_scalefactor)
                     values['ac_current_phase_c'] = self.round(ac_current_phase_c * ac_current_scalefactor)
 
-                    #skip VoltageAB, BC and CA
-                    data.skip_bytes(6)
+                    #40077-40079, AC Voltage AB, BC and CA
+                    ac_voltage_phase_ab = data.decode_16bit_uint()
+                    ac_voltage_phase_bc = data.decode_16bit_uint()
+                    ac_voltage_phase_ca = data.decode_16bit_uint()
+
 
                     #40080-40082, AC Voltage AN, BN and CN
                     ac_voltage_phase_a = data.decode_16bit_uint()
@@ -97,7 +100,11 @@ class SolarEdgeModbusSensor(Entity):
 
                     #40083
                     ac_voltage_phase_scalefactor = 10**data.decode_16bit_int()
-                    
+
+                    values['ac_voltage_phase_ab'] = self.round(ac_voltage_phase_ab * ac_voltage_phase_scalefactor)
+                    values['ac_voltage_phase_bc'] = self.round(ac_voltage_phase_bc * ac_voltage_phase_scalefactor)
+                    values['ac_voltage_phase_ca'] = self.round(ac_voltage_phase_ca * ac_voltage_phase_scalefactor)
+		
                     values['ac_voltage_phase_a'] = self.round(ac_voltage_phase_a * ac_voltage_phase_scalefactor)
                     values['ac_voltage_phase_b'] = self.round(ac_voltage_phase_b * ac_voltage_phase_scalefactor)
                     values['ac_voltage_phase_c'] = self.round(ac_voltage_phase_c * ac_voltage_phase_scalefactor)
