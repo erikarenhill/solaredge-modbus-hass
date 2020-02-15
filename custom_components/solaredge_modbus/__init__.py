@@ -16,7 +16,7 @@ CONFIG_SCHEMA = vol.Schema(
         vol.Optional(CONF_NAME, default="SolarEdge Modbus"): cv.string,
         vol.Optional("port", default=1502): cv.positive_int,
         vol.Optional(CONF_SCAN_INTERVAL, default=1): cv.positive_int,
-        vol.Optional("read_meter1", default=false): cv.boolean,
+        vol.Optional("read_meter1", default=False): cv.boolean,
     })},
     extra=vol.ALLOW_EXTRA,
 )
