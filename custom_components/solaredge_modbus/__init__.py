@@ -16,6 +16,7 @@ CONFIG_SCHEMA = vol.Schema(
         vol.Optional(CONF_NAME, default="SolarEdge Modbus"): cv.string,
         vol.Optional("port", default=1502): cv.positive_int,
         vol.Optional(CONF_SCAN_INTERVAL, default=1): cv.positive_int,
+        vol.Optional("read_meter1", default=false): cv.boolean,
     })},
     extra=vol.ALLOW_EXTRA,
 )
@@ -38,6 +39,6 @@ async def async_setup(hass, config):
     _LOGGER.debug("creating modbus client done")
 
     for component in ["sensor"]:
-        discovery.load_platform(hass, component, DOMAIN, {CONF_NAME: DOMAIN, CONF_SCAN_INTERVAL: conf[CONF_SCAN_INTERVAL]}, config)
+        discovery.load_platform(hass, component, DOMAIN, {CONF_NAME: DOMAIN, CONF_SCAN_INTERVAL: conf[CONF_SCAN_INTERVAL], read_meter1: conf["read_meter1"]}, config)
 
     return True
