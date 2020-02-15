@@ -453,7 +453,12 @@ class SolarEdgeMeterSensor(Entity):
                     # M_EVENT_Over_Voltage 0x00000040 Voltage Input over threshold (out of measurement range)
                     # M_EVENT_Missing_Sensor 0x00000080 Sensor not connected
 
+                    
+                    self._state = values['m1_ac_power_output']
                     self._device_state_attributes = values
+
+                    #tell HA there is new data
+                    self.async_schedule_update_ha_state()
                 
                 
                 else:
