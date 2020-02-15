@@ -36,7 +36,7 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
 
 
 class SolarEdgeModbusSensor(Entity):
-    def __init__(self, client):
+    def __init__(self, client, scan_interval):
         _LOGGER.debug("creating modbus sensor")
 
         self._client = client
