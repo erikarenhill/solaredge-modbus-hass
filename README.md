@@ -21,7 +21,7 @@ See sample-configuration.yaml for information how to configure, and how to extra
 
 # Enable readings from external RS485 meter
 
-Just add "read_meter1: true" to the configuration block. For now it only supports one external meter for getting values such as self consumption. Thanks to [awulf](https://github.com/awulf) for contributing with code and testing for this feature.
+Just add "read_meter1: true" to the configuration block. For now it only supports one external meter for getting values such as current (own) power consumption, grid power, etc.... so you can calculate your own consumption from the solar panels and import/export for example. Thanks to [awulf](https://github.com/awulf) for contributing with code and testing for this feature.
 
 
 
