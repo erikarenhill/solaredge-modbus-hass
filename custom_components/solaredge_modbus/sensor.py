@@ -7,6 +7,8 @@ from time import sleep
 from datetime import timedelta
 import logging
 
+from homeassistant.const import CONF_SCAN_INTERVAL
+
 from pyModbusTCP.client import ModbusClient
 from pymodbus.constants import Endian
 from pymodbus.payload import BinaryPayloadDecoder
@@ -28,8 +30,9 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
 
     _LOGGER.debug("fetching modbus client")
     client = hass.data.get(SOLAREDGE_DOMAIN)
+    scan_interval = discovery_info[CONF_SCAN_INTERVAL]
 
-    async_add_entities([SolarEdgeModbusSensor(client)], True)
+    async_add_entities([SolarEdgeModbusSensor(client, scan_interval)], True)
 
 
 class SolarEdgeModbusSensor(Entity):
@@ -38,6 +41,7 @@ class SolarEdgeModbusSensor(Entity):
 
         self._client = client
 
+        self._scan_interval = scan_interval
         self._state = 0
         self._device_state_attributes = {}
 
@@ -185,8 +189,8 @@ class SolarEdgeModbusSensor(Entity):
                         values['computed_inverter_efficiency'] = 0
 
                     #debug-print entire dictionary
-                    for x in values.keys():
-                        print(x +" => " + str(values[x]))
+                    #for x in values.keys():
+                    #    print(x +" => " + str(values[x]))
 
                     #main state is power production, other values can be fetched as attributes
                     self._state = values['ac_power_output']
@@ -203,7 +207,7 @@ class SolarEdgeModbusSensor(Entity):
                 _LOGGER.error(f'exception: {e}')
                 print(traceback.format_exc())
 
-            await asyncio.sleep(5) #5 sec, make configurable
+            await asyncio.sleep(self._scan_interval)
 
     @property
     def name(self):

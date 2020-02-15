@@ -4,7 +4,7 @@ import voluptuous as vol
 
 from pyModbusTCP.client import ModbusClient
 
-from homeassistant.const import CONF_HOST, CONF_NAME
+from homeassistant.const import CONF_HOST, CONF_NAME, CONF_SCAN_INTERVAL
 import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers import discovery
 
@@ -15,6 +15,7 @@ CONFIG_SCHEMA = vol.Schema(
         vol.Required(CONF_HOST): cv.string,
         vol.Optional(CONF_NAME, default="SolarEdge Modbus"): cv.string,
         vol.Optional("port", default=1502): cv.positive_int,
+        vol.Optional(CONF_SCAN_INTERVAL, default=1): cv.positive_int,
     })},
     extra=vol.ALLOW_EXTRA,
 )
@@ -37,6 +38,6 @@ async def async_setup(hass, config):
     _LOGGER.debug("creating modbus client done")
 
     for component in ["sensor"]:
-        discovery.load_platform(hass, component, DOMAIN, {CONF_NAME: DOMAIN}, config)
+        discovery.load_platform(hass, component, DOMAIN, {CONF_NAME: DOMAIN, CONF_SCAN_INTERVAL: conf[CONF_SCAN_INTERVAL]}, config)
 
     return True
