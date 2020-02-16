@@ -23,6 +23,7 @@ ICON = "mdi:power-plug"
 SCAN_INTERVAL = timedelta(seconds=5)
 
 values = {}
+meter1_values = {}
 
 async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
     if discovery_info is None:
@@ -293,10 +294,10 @@ class SolarEdgeMeterSensor(Entity):
                     # #40194
                     m1_ac_current_scalefactor = 10**data.decode_16bit_int()
 
-                    values['m1_ac_current'] = self.round(m1_ac_current * m1_ac_current_scalefactor)
-                    values['m1_ac_current_phase_a'] = self.round(m1_ac_current_phase_a * m1_ac_current_scalefactor)
-                    values['m1_ac_current_phase_b'] = self.round(m1_ac_current_phase_b * m1_ac_current_scalefactor)
-                    values['m1_ac_current_phase_c'] = self.round(m1_ac_current_phase_c * m1_ac_current_scalefactor)
+                    meter1_values['ac_current'] = self.round(m1_ac_current * m1_ac_current_scalefactor)
+                    meter1_values['ac_current_phase_a'] = self.round(m1_ac_current_phase_a * m1_ac_current_scalefactor)
+                    meter1_values['ac_current_phase_b'] = self.round(m1_ac_current_phase_b * m1_ac_current_scalefactor)
+                    meter1_values['ac_current_phase_c'] = self.round(m1_ac_current_phase_c * m1_ac_current_scalefactor)
 
                     ################
                     # Voltage
@@ -317,15 +318,15 @@ class SolarEdgeMeterSensor(Entity):
                     #40203
                     m1_ac_voltage_phase_scalefactor = 10**data.decode_16bit_int()
 
-                    values['m1_ac_voltage_phase_ll'] = self.round(m1_ac_voltage_phase_ll * m1_ac_voltage_phase_scalefactor)
-                    values['m1_ac_voltage_phase_ab'] = self.round(m1_ac_voltage_phase_ab * m1_ac_voltage_phase_scalefactor)
-                    values['m1_ac_voltage_phase_bc'] = self.round(m1_ac_voltage_phase_bc * m1_ac_voltage_phase_scalefactor)
-                    values['m1_ac_voltage_phase_ca'] = self.round(m1_ac_voltage_phase_ca * m1_ac_voltage_phase_scalefactor)
+                    meter1_values['ac_voltage_phase_ll'] = self.round(m1_ac_voltage_phase_ll * m1_ac_voltage_phase_scalefactor)
+                    meter1_values['ac_voltage_phase_ab'] = self.round(m1_ac_voltage_phase_ab * m1_ac_voltage_phase_scalefactor)
+                    meter1_values['ac_voltage_phase_bc'] = self.round(m1_ac_voltage_phase_bc * m1_ac_voltage_phase_scalefactor)
+                    meter1_values['ac_voltage_phase_ca'] = self.round(m1_ac_voltage_phase_ca * m1_ac_voltage_phase_scalefactor)
         
-                    values['m1_ac_voltage_phase_ln'] = self.round(m1_ac_voltage_phase_ln * m1_ac_voltage_phase_scalefactor)
-                    values['m1_ac_voltage_phase_an'] = self.round(m1_ac_voltage_phase_an * m1_ac_voltage_phase_scalefactor)
-                    values['m1_ac_voltage_phase_bn'] = self.round(m1_ac_voltage_phase_bn * m1_ac_voltage_phase_scalefactor)
-                    values['m1_ac_voltage_phase_cn'] = self.round(m1_ac_voltage_phase_cn * m1_ac_voltage_phase_scalefactor)
+                    meter1_values['ac_voltage_phase_ln'] = self.round(m1_ac_voltage_phase_ln * m1_ac_voltage_phase_scalefactor)
+                    meter1_values['ac_voltage_phase_an'] = self.round(m1_ac_voltage_phase_an * m1_ac_voltage_phase_scalefactor)
+                    meter1_values['ac_voltage_phase_bn'] = self.round(m1_ac_voltage_phase_bn * m1_ac_voltage_phase_scalefactor)
+                    meter1_values['ac_voltage_phase_cn'] = self.round(m1_ac_voltage_phase_cn * m1_ac_voltage_phase_scalefactor)
 
                     #40204, Frequency
                     m1_ac_frequency = data.decode_16bit_int()
@@ -336,7 +337,7 @@ class SolarEdgeMeterSensor(Entity):
 
                     #40205
                     m1_ac_frequency_scalefactor = 10**data.decode_16bit_int()
-                    values['m1_ac_frequency'] = self.round(m1_ac_frequency * m1_ac_frequency_scalefactor)
+                    meter1_values['ac_frequency'] = self.round(m1_ac_frequency * m1_ac_frequency_scalefactor)
 
                     #40206
                     m1_ac_power_output = data.decode_16bit_int()
@@ -345,7 +346,7 @@ class SolarEdgeMeterSensor(Entity):
 
                     #40210
                     m1_ac_power_scalefactor = 10**data.decode_16bit_int()
-                    values['m1_ac_power_output'] = self.round(m1_ac_power_output * m1_ac_power_scalefactor)
+                    meter1_values['ac_power_output'] = self.round(m1_ac_power_output * m1_ac_power_scalefactor)
 
                     #40211 Apparent Power
                     m1_ac_va = data.decode_16bit_uint()
@@ -353,7 +354,7 @@ class SolarEdgeMeterSensor(Entity):
                     data.skip_bytes(6) # Skip the phases
 
                     m1_ac_va_scalefactor = 10 ** data.decode_16bit_int()
-                    values['m1_ac_va'] = self.round(m1_ac_va * m1_ac_va_scalefactor)
+                    meter1_values['ac_va'] = self.round(m1_ac_va * m1_ac_va_scalefactor)
 
                     #40216 Reactive Power
                     m1_ac_var = data.decode_16bit_uint()
@@ -361,7 +362,7 @@ class SolarEdgeMeterSensor(Entity):
                     data.skip_bytes(6) # Skip the phases
 
                     m1_ac_var_scalefactor = 10 ** data.decode_16bit_int()
-                    values['m1_ac_var'] = self.round(m1_ac_var * m1_ac_var_scalefactor)
+                    meter1_values['ac_var'] = self.round(m1_ac_var * m1_ac_var_scalefactor)
 
                     #40221 Power Factor
                     m1_ac_pf = data.decode_16bit_uint()
@@ -369,7 +370,7 @@ class SolarEdgeMeterSensor(Entity):
                     data.skip_bytes(6) # Skip the phases
 
                     m1_ac_pf_scalefactor = 10 ** data.decode_16bit_int()
-                    values['m1_ac_pf'] = self.round(m1_ac_pf * m1_ac_pf_scalefactor)
+                    meter1_values['ac_pf'] = self.round(m1_ac_pf * m1_ac_pf_scalefactor)
 
                     ################
                     # Accumulated Energy
@@ -390,8 +391,8 @@ class SolarEdgeMeterSensor(Entity):
                     m1_energy_scalefactor = 10**data.decode_16bit_uint()
 
                     # Total production entire lifetime
-                    values['m1_exported'] = self.round(m1_exported * m1_energy_scalefactor)
-                    values['m1_imported'] = self.round(m1_imported * m1_energy_scalefactor)
+                    meter1_values['exported'] = self.round(m1_exported * m1_energy_scalefactor)
+                    meter1_values['imported'] = self.round(m1_imported * m1_energy_scalefactor)
 
                     # Apparent Energy
                     # ---------------
@@ -408,8 +409,8 @@ class SolarEdgeMeterSensor(Entity):
                     m1_energy_va_scalefactor = 10**data.decode_16bit_uint()
 
                     # Total production entire lifetime
-                    values['m1_exported_va'] = self.round(m1_exported_va * m1_energy_va_scalefactor)
-                    values['m1_imported_va'] = self.round(m1_imported_va * m1_energy_va_scalefactor)
+                    meter1_values['exported_va'] = self.round(m1_exported_va * m1_energy_va_scalefactor)
+                    meter1_values['imported_va'] = self.round(m1_imported_va * m1_energy_va_scalefactor)
 
                     # Reactive Energy
                     # ---------------
@@ -434,17 +435,17 @@ class SolarEdgeMeterSensor(Entity):
                     m1_energy_var_scalefactor = 10**data.decode_16bit_uint()
 
                     # Total production entire lifetime
-                    values['m1_imported_var_q1'] = self.round(m1_imported_var_q1 * m1_energy_var_scalefactor)
-                    values['m1_imported_var_q2'] = self.round(m1_imported_var_q2 * m1_energy_var_scalefactor)
-                    values['m1_exported_var_q3'] = self.round(m1_exported_var_q3 * m1_energy_var_scalefactor)
-                    values['m1_exported_var_q4'] = self.round(m1_exported_var_q4 * m1_energy_var_scalefactor)
+                    meter1_values['imported_var_q1'] = self.round(m1_imported_var_q1 * m1_energy_var_scalefactor)
+                    meter1_values['imported_var_q2'] = self.round(m1_imported_var_q2 * m1_energy_var_scalefactor)
+                    meter1_values['exported_var_q3'] = self.round(m1_exported_var_q3 * m1_energy_var_scalefactor)
+                    meter1_values['exported_var_q4'] = self.round(m1_exported_var_q4 * m1_energy_var_scalefactor)
                     
                     # Events
                     # ---------------
 
                     #40097 
                     m1_events = data.decode_32bit_uint()
-                    values['m1_events'] = m1_events
+                    meter1_values['events'] = m1_events
 
                     # M_EVENT_Power_Failure 0x00000004 Loss of power or phase
                     # M_EVENT_Under_Voltage 0x00000008 Voltage below threshold (Phase Loss)
@@ -454,8 +455,8 @@ class SolarEdgeMeterSensor(Entity):
                     # M_EVENT_Missing_Sensor 0x00000080 Sensor not connected
 
                     
-                    self._state = values['m1_ac_power_output']
-                    self._device_state_attributes = values
+                    self._state = meter1_values['ac_power_output']
+                    self._device_state_attributes = meter1_values
 
                     #tell HA there is new data
                     self.async_schedule_update_ha_state()
