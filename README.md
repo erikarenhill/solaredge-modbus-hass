@@ -19,6 +19,16 @@ Copy custom_components/solaredge_modbus to your hass data directory (where your 
 
 See sample-configuration.yaml for information how to configure, and how to extract attributes into custom template sensors.
 
+# Enable readings from external RS485 meter
+
+Just add "read_meter1: true" to the configuration block. For now it only supports one external meter for getting values such as current (own) power consumption, grid power, etc.... so you can calculate your own consumption from the solar panels and import/export for example. Thanks to [awulf](https://github.com/awulf) for contributing with code and testing for this feature.
+
+
+
+
+---
+
+
 If you like this component, you can always buy me a coffee
 
 <a href="https://www.buymeacoffee.com/gax2VUf" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/default-yellow.png" alt="Buy Me A Coffee" style="height: 20px !important;width: 100px !important;" ></a>
