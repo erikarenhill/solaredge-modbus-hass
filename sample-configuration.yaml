@@ -86,7 +86,7 @@ sensor:
             friendly_name: "Lifetime production"
             value_template: "{{ (state_attr('sensor.solaredge_modbus', 'ac_lifetimeproduction') / 1000.0) | round(2) }}"
             unit_of_measurement: 'kWh'
-        status:
+        solaredge_status:
             friendly_name: "SolarEdge Status"
             value_template: >-
               {% if state_attr('sensor.solaredge_modbus', 'status') == 1 %}
