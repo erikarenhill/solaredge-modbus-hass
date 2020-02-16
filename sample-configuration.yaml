@@ -3,7 +3,8 @@ solaredge_modbus:
     name: 'SolarEdge Modbus'
     host: 192.168.1.111
     port: 1502
-    scan_interval: 5 #Optional time in seconds between readings. Recommended value is at fastest 2-3 sec, default 5
+    scan_interval: 5 #Optional: time in seconds between readings. Recommended value is at fastest 2-3 sec, default 5
+    read_meter1: false #Optional: set this to true if you have an external modbus meter connected with RS485 for reading self consumption
 
 utility_meter:
     solar_production_daily:
