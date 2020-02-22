@@ -71,6 +71,7 @@ class SolarEdgeModbusSensor(Entity):
         task = loop.create_task(self.modbus_loop())
 
     async def modbus_loop(self):
+	sleep(0.005)
         while True:
             try:
 		        
