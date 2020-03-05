@@ -457,8 +457,8 @@ class SolarEdgeMeterSensor(Entity):
                     # M_EVENT_Over_Voltage 0x00000040 Voltage Input over threshold (out of measurement range)
                     # M_EVENT_Missing_Sensor 0x00000080 Sensor not connected
 
-                    # Skip if increamenting counters have gone to 0, means something isn't right, usually happens on inverter startup
-                    validValue = meter1_values['exported'] > 0 or meter1_values['imported'] > 0
+                    # Skip if incrementing counters have gone to 0, means something isn't right, usually happens on inverter startup
+                    validValue = meter1_values['exported'] > 0 and meter1_values['imported'] > 0
                     if validValue:
                         self._state = meter1_values['ac_power_output']
                         self._device_state_attributes = meter1_values
