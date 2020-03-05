@@ -132,25 +132,19 @@ class SolarEdgeModbusSensor(Entity):
                     values['ac_frequency'] = self.round(freq * freq_scalefactor)
 
                     #AC VA
-                    #print(data.decode_16bit_int())
-
-                    #AC VA SF
-                    #print(data.decode_16bit_int())
+                    ac_va = data.decode_16bit_int()
+                    ac_va_scalefactor = 10 ** data.decode_16bit_int()
+                    values['ac_va'] = self.round(ac_va * ac_va_scalefactor)
 
                     #AC VAR
-                    #print(data.decode_16bit_int())
-
-                    #AC VAR SF
-                    #print(data.decode_16bit_int())
+                    ac_var = data.decode_16bit_int()
+                    ac_var_scalefactor = 10 ** data.decode_16bit_int()
+                    values['ac_var'] = self.round(ac_var * ac_var_scalefactor)
 
                     #AC PF
-                    #print(data.decode_16bit_int())
-
-                    #AC PF SF
-                    #print(data.decode_16bit_int())
-
-                    #skip AC VA, VAR and PF for now
-                    data.skip_bytes(12)
+                    ac_pf = data.decode_16bit_int()
+                    ac_pf_scalefactor = 10 ** data.decode_16bit_int()
+                    values['ac_pf'] = self.round(ac_pf * ac_pf_scalefactor)
 
                     #40094
                     lifetime = data.decode_32bit_uint()
