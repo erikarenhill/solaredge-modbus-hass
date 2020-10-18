@@ -132,25 +132,19 @@ class SolarEdgeModbusSensor(Entity):
                     values['ac_frequency'] = self.round(freq * freq_scalefactor)
 
                     #AC VA
-                    #print(data.decode_16bit_int())
-
-                    #AC VA SF
-                    #print(data.decode_16bit_int())
+                    ac_va = data.decode_16bit_int()
+                    ac_va_scalefactor = 10 ** data.decode_16bit_int()
+                    values['ac_va'] = self.round(ac_va * ac_va_scalefactor)
 
                     #AC VAR
-                    #print(data.decode_16bit_int())
-
-                    #AC VAR SF
-                    #print(data.decode_16bit_int())
+                    ac_var = data.decode_16bit_int()
+                    ac_var_scalefactor = 10 ** data.decode_16bit_int()
+                    values['ac_var'] = self.round(ac_var * ac_var_scalefactor)
 
                     #AC PF
-                    #print(data.decode_16bit_int())
-
-                    #AC PF SF
-                    #print(data.decode_16bit_int())
-
-                    #skip AC VA, VAR and PF for now
-                    data.skip_bytes(12)
+                    ac_pf = data.decode_16bit_int()
+                    ac_pf_scalefactor = 10 ** data.decode_16bit_int()
+                    values['ac_pf'] = self.round(ac_pf * ac_pf_scalefactor)
 
                     #40094
                     lifetime = data.decode_32bit_uint()
@@ -198,12 +192,20 @@ class SolarEdgeModbusSensor(Entity):
                     #for x in values.keys():
                     #    print(x +" => " + str(values[x]))
 
-                    #main state is power production, other values can be fetched as attributes
-                    self._state = values['ac_power_output']
-                    self._device_state_attributes = values
+                    # Skip if increamenting counter has gone to 0, or become too large, this happens on inverter startup
+                    validValue = values['ac_lifetimeproduction'] > 0
+                    try:
+                        float(values['ac_lifetimeproduction'])
+                    except Exception as e:
+                        validValue = False
 
-                    #tell HA there is new data
-                    self.async_schedule_update_ha_state()
+                    if validValue:
+                        #main state is power production, other values can be fetched as attributes
+                        self._state = values['ac_power_output']
+                        self._device_state_attributes = values
+
+                        #tell HA there is new data
+                        self.async_schedule_update_ha_state()
 
                 else:
                     if self._client.last_error() > 0:
@@ -455,12 +457,14 @@ class SolarEdgeMeterSensor(Entity):
                     # M_EVENT_Over_Voltage 0x00000040 Voltage Input over threshold (out of measurement range)
                     # M_EVENT_Missing_Sensor 0x00000080 Sensor not connected
 
-                    
-                    self._state = meter1_values['ac_power_output']
-                    self._device_state_attributes = meter1_values
+                    # Skip if incrementing counters have gone to 0, means something isn't right, usually happens on inverter startup
+                    validValue = meter1_values['exported'] > 0 and meter1_values['imported'] > 0
+                    if validValue:
+                        self._state = meter1_values['ac_power_output']
+                        self._device_state_attributes = meter1_values
 
-                    #tell HA there is new data
-                    self.async_schedule_update_ha_state()
+                        #tell HA there is new data
+                        self.async_schedule_update_ha_state()
                 
                 
                 else:
