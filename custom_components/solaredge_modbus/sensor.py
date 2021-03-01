@@ -32,13 +32,20 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     _LOGGER.debug("fetching modbus client")
     client = hass.data.get(SOLAREDGE_DOMAIN)
     scan_interval = discovery_info[CONF_SCAN_INTERVAL]
-    useMeter = discovery_info["read_meter"]
-    meterId = discovery_info["unit_id"]
+    useMeter1 = discovery_info["read_meter1"]
+    useMeter2 = discovery_info["read_meter2"]
+    useMeter3 = discovery_info["read_meter3"]
 
     async_add_entities([SolarEdgeModbusSensor(client, scan_interval)], True)
 
-    if useMeter:
-        async_add_entities([SolarEdgeMeterSensor(client, unit_id, scan_interval)], True)
+    if useMeter1:
+        async_add_entities([SolarEdgeMeterSensor(client, 1, scan_interval)], True)
+
+    if useMeter2:
+        async_add_entities([SolarEdgeMeterSensor(client, 2, scan_interval)], True)
+
+    if useMeter3:
+        async_add_entities([SolarEdgeMeterSensor(client, 3, scan_interval)], True)
 
 
 class SolarEdgeModbusSensor(Entity):

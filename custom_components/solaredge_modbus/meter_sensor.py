@@ -21,8 +21,8 @@ meter_values = {}
 
 class SolarEdgeMeterSensor(Entity):
     def __init__(self, client, unit_id, scan_interval):
-        _LOGGER.debug("creating modbus meter sensor")
-        print("creating modbus meter sensor")
+        _LOGGER.debug("creating modbus meter sensor #" + unit_id)
+        print("creating modbus meter sensor #" + unit_id)
 
         self._client = client
 
@@ -262,7 +262,7 @@ class SolarEdgeMeterSensor(Entity):
     @property
     def name(self):
         """Return the name of the sensor."""
-        return "SolarEdge Modbus Meter #"
+        return "SolarEdge Modbus Meter #" + self._unit_id
 
     @property
     def should_poll(self):
@@ -281,4 +281,4 @@ class SolarEdgeMeterSensor(Entity):
 
     @property
     def unique_id(self):
-        return "SolarEdge Meter#1"
+        return "SolarEdge Meter#" + self._unit_id
