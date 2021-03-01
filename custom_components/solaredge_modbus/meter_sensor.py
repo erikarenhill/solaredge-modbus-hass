@@ -34,7 +34,7 @@ class SolarEdgeMeterSensor(Entity):
 
         if unit_id == 2:
             self._register_start = 40632
-        else if unit_id == 3:
+        elif unit_id == 3:
             self._register_start = 40537
 
     def round(self, floatval):
