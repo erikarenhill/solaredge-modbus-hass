@@ -17,12 +17,14 @@ from homeassistant.helpers.entity import Entity
 
 from . import DOMAIN as SOLAREDGE_DOMAIN
 
+_LOGGER = logging.getLogger(__name__)
+ICON = "mdi:power-plug"
+
 meter_values = {}
 
 class SolarEdgeMeterSensor(Entity):
     def __init__(self, client, unit_id, scan_interval):
-        _LOGGER.debug("creating modbus meter sensor #" + unit_id)
-        print("creating modbus meter sensor #" + unit_id)
+        _LOGGER.debug("creating modbus meter sensor # %id", unit_id)
 
         self._client = client
 
@@ -168,11 +170,11 @@ class SolarEdgeMeterSensor(Entity):
 
                     #40226
                     m_exported = data.decode_32bit_uint()
-                    data.skip_bytes(12) # Skip phases
+                    data.skip_bytes(12)  # Skip phases
                     
                     #40234
                     m_imported = data.decode_32bit_uint()
-                    data.skip_bytes(12) # Skip phases
+                    data.skip_bytes(12)  # Skip phases
 
                     #40095
                     m_energy_scalefactor = 10**data.decode_16bit_uint()
@@ -262,7 +264,7 @@ class SolarEdgeMeterSensor(Entity):
     @property
     def name(self):
         """Return the name of the sensor."""
-        return "SolarEdge Modbus Meter #" + self._unit_id
+        return "SolarEdge Modbus Meter #" + str(self._unit_id)
 
     @property
     def should_poll(self):
@@ -281,4 +283,4 @@ class SolarEdgeMeterSensor(Entity):
 
     @property
     def unique_id(self):
-        return "SolarEdge Meter#" + self._unit_id
+        return "SolarEdge Meter#" + str(self._unit_id)
