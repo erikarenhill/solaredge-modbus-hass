@@ -9,7 +9,6 @@ import logging
 
 from homeassistant.const import CONF_SCAN_INTERVAL
 
-from pyModbusTCP.client import ModbusClient
 from pymodbus.constants import Endian
 from pymodbus.payload import BinaryPayloadDecoder
 
@@ -32,11 +31,16 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     _LOGGER.debug("fetching modbus client")
     client = hass.data.get(SOLAREDGE_DOMAIN)
     scan_interval = discovery_info[CONF_SCAN_INTERVAL]
+    unit_id = discovery_info["unit_id"]
     useMeter1 = discovery_info["read_meter1"]
     useMeter2 = discovery_info["read_meter2"]
     useMeter3 = discovery_info["read_meter3"]
+    additional_inverter_unit_id = discovery_info["additional_inverter_unit_id"]
 
-    async_add_entities([SolarEdgeModbusSensor(client, scan_interval)], True)
+    async_add_entities([SolarEdgeModbusSensor(client, unit_id, scan_interval)], True)
+
+    if additional_inverter_unit_id > 0:
+        async_add_entities([SolarEdgeModbusSensor(client, additional_inverter_unit_id, scan_interval)], True)
 
     if useMeter1:
         async_add_entities([SolarEdgeMeterSensor(client, 1, scan_interval)], True)
@@ -49,15 +53,15 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
 
 
 class SolarEdgeModbusSensor(Entity):
-    def __init__(self, client, scan_interval):
+    def __init__(self, client, unit_id, scan_interval):
         _LOGGER.debug("creating modbus sensor")
-        print("creating modbus sensor")
 
         self._client = client
 
         self._scan_interval = scan_interval
         self._state = 0
         self._device_state_attributes = {}
+        self._unit_id = unit_id
 
     def round(self, floatval):
         return round(floatval, 2)
@@ -81,11 +85,10 @@ class SolarEdgeModbusSensor(Entity):
     async def modbus_loop(self):
         sleep(0.005)
         while True:
-            try:
-		        
-                reading = self._client.read_holding_registers(40069, 39)
+            try:		        
+                reading = self._client.read_holding_registers(address=40069, count=39, unit=self._unit_id)
                 if reading:
-                    data = BinaryPayloadDecoder.fromRegisters(reading, byteorder=Endian.Big, wordorder=Endian.Big)
+                    data = BinaryPayloadDecoder.fromRegisters(reading.registers, byteorder=Endian.Big, wordorder=Endian.Big)
 
                     data.skip_bytes(4)
                     #data.decode_16bit_uint()
@@ -228,7 +231,7 @@ class SolarEdgeModbusSensor(Entity):
     @property
     def name(self):
         """Return the name of the sensor."""
-        return "SolarEdge Modbus"
+        return f"SolarEdge Modbus {self._unit_id}"
 
     @property
     def should_poll(self):
@@ -247,5 +250,4 @@ class SolarEdgeModbusSensor(Entity):
 
     @property
     def unique_id(self):
-        return "SolarEdge"
-
+        return f"SolarEdge {self._unit_id}"
