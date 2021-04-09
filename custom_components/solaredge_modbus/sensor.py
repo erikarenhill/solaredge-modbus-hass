@@ -32,9 +32,9 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     client = hass.data.get(SOLAREDGE_DOMAIN)
     scan_interval = discovery_info[CONF_SCAN_INTERVAL]
     unit_id = discovery_info["unit_id"]
-    useMeter1 = discovery_info["read_meter1"]
-    useMeter2 = discovery_info["read_meter2"]
-    useMeter3 = discovery_info["read_meter3"]
+    read_meter1 = discovery_info["read_meter1"]
+    read_meter2 = discovery_info["read_meter2"]
+    read_meter3 = discovery_info["read_meter3"]
     additional_inverter_unit_id = discovery_info["additional_inverter_unit_id"]
 
     async_add_entities([SolarEdgeModbusSensor(client, unit_id, scan_interval)], True)
@@ -42,14 +42,14 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     if additional_inverter_unit_id > 0:
         async_add_entities([SolarEdgeModbusSensor(client, additional_inverter_unit_id, scan_interval)], True)
 
-    if useMeter1:
-        async_add_entities([SolarEdgeMeterSensor(client, 1, scan_interval)], True)
+    if read_meter1:
+        async_add_entities([SolarEdgeMeterSensor(client, unit_id, 1, scan_interval)], True)
 
-    if useMeter2:
-        async_add_entities([SolarEdgeMeterSensor(client, 2, scan_interval)], True)
+    if read_meter2:
+        async_add_entities([SolarEdgeMeterSensor(client, unit_id, 2, scan_interval)], True)
 
-    if useMeter3:
-        async_add_entities([SolarEdgeMeterSensor(client, 3, scan_interval)], True)
+    if read_meter3:
+        async_add_entities([SolarEdgeMeterSensor(client, unit_id, 3, scan_interval)], True)
 
 
 class SolarEdgeModbusSensor(Entity):

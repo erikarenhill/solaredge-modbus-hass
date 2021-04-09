@@ -9,7 +9,6 @@ import logging
 
 from homeassistant.const import CONF_SCAN_INTERVAL
 
-from pyModbusTCP.client import ModbusClient
 from pymodbus.constants import Endian
 from pymodbus.payload import BinaryPayloadDecoder
 
@@ -23,8 +22,8 @@ ICON = "mdi:power-plug"
 meter_values = {}
 
 class SolarEdgeMeterSensor(Entity):
-    def __init__(self, client, unit_id, scan_interval):
-        _LOGGER.debug("creating modbus meter sensor # %id", unit_id)
+    def __init__(self, client, unit_id, meter_id, scan_interval):
+        _LOGGER.debug("creating modbus meter sensor # %id", meter_id)
 
         self._client = client
 
@@ -32,12 +31,13 @@ class SolarEdgeMeterSensor(Entity):
         self._state = 0
         self._device_state_attributes = {}
         self._unit_id = unit_id
+        self._meter_id = meter_id
         self._register_start = 40188
 
-        if unit_id == 2:
-            self._register_start = 40632
-        elif unit_id == 3:
-            self._register_start = 40537
+        if meter_id == 2:
+            self._register_start = 40362
+        elif meter_id == 3:
+            self._register_start = 40536
 
     def round(self, floatval):
         return round(floatval, 2)
@@ -63,10 +63,10 @@ class SolarEdgeMeterSensor(Entity):
             sleep(0.005)
             try:
 		        
-                reading = self._client.read_holding_registers(self._register_start, 107)
+                reading = self._client.read_holding_registers(self._register_start, 107, unit=self._unit_id)
                 
                 if reading:
-                    data = BinaryPayloadDecoder.fromRegisters(reading, byteorder=Endian.Big, wordorder=Endian.Big)
+                    data = BinaryPayloadDecoder.fromRegisters(reading.registers, byteorder=Endian.Big, wordorder=Endian.Big)
 
                     # Identification
                     # 40188 C_SunSpec_DID (unit16)
@@ -264,7 +264,7 @@ class SolarEdgeMeterSensor(Entity):
     @property
     def name(self):
         """Return the name of the sensor."""
-        return "SolarEdge Modbus Meter #" + str(self._unit_id)
+        return "SolarEdge Modbus Meter #" + str(self._meter_id)
 
     @property
     def should_poll(self):
@@ -283,4 +283,4 @@ class SolarEdgeMeterSensor(Entity):
 
     @property
     def unique_id(self):
-        return "SolarEdge Meter#" + str(self._unit_id)
+        return "SolarEdge Meter#" + str(self._meter_id)
