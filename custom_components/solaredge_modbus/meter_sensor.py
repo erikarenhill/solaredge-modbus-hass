@@ -17,12 +17,16 @@ from homeassistant.helpers.entity import Entity
 
 from . import DOMAIN as SOLAREDGE_DOMAIN
 
+_LOGGER = logging.getLogger(__name__)
+
+ICON = "mdi:power-plug"
+
 meter_values = {}
 
 class SolarEdgeMeterSensor(Entity):
     def __init__(self, client, unit_id, scan_interval):
-        _LOGGER.debug("creating modbus meter sensor #" + unit_id)
-        print("creating modbus meter sensor #" + unit_id)
+        _LOGGER.debug("creating modbus meter sensor #" + str(unit_id))
+        print("creating modbus meter sensor #" + str(unit_id))
 
         self._client = client
 
@@ -33,9 +37,9 @@ class SolarEdgeMeterSensor(Entity):
         self._register_start = 40188
 
         if unit_id == 2:
-            self._register_start = 40632
+            self._register_start = 40362
         elif unit_id == 3:
-            self._register_start = 40537
+            self._register_start = 40536
 
     def round(self, floatval):
         return round(floatval, 2)
@@ -60,7 +64,6 @@ class SolarEdgeMeterSensor(Entity):
         while True:
             sleep(0.005)
             try:
-		        
                 reading = self._client.read_holding_registers(self._register_start, 107)
                 
                 if reading:
@@ -262,7 +265,7 @@ class SolarEdgeMeterSensor(Entity):
     @property
     def name(self):
         """Return the name of the sensor."""
-        return "SolarEdge Modbus Meter #" + self._unit_id
+        return "SolarEdge Modbus Meter #" + str(self._unit_id)
 
     @property
     def should_poll(self):
@@ -281,4 +284,4 @@ class SolarEdgeMeterSensor(Entity):
 
     @property
     def unique_id(self):
-        return "SolarEdge Meter#" + self._unit_id
+        return "SolarEdge Meter#" + str(self._unit_id)
