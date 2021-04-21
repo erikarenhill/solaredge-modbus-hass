@@ -1,0 +1,6 @@
+{
+	"name": "SolarEdge Modbus",
+	"country": "SE",
+	"render_readme": false,
+	"domains": ["sensor"]
+}
