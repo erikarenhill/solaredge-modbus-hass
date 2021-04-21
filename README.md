@@ -15,6 +15,10 @@ This component reads all registers every reading to make sure it can't get out o
 
 # How to install
 
+Though HACS:
+Add custom repository: https://github.com/erikarenhill/solaredge-modbus-hass/
+
+Or manual install:
 Copy custom_components/solaredge_modbus to your hass data directory (where your configuration.yaml lives). It should go into the same directory structure (YOUR_CONFIG_DIRECTORY/custom_components/solaredge_modbus)
 
 See sample-configuration.yaml for information how to configure, and how to extract attributes into custom template sensors.
