@@ -71,8 +71,8 @@ class SolarEdgeModbusSensor(Entity):
         task = loop.create_task(self.modbus_loop())
 
     async def modbus_loop(self):
-        sleep(0.005)
         while True:
+            sleep(0.005)
             try:
 		        
                 reading = self._client.read_holding_registers(40069, 39)
