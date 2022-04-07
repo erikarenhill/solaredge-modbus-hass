@@ -72,9 +72,7 @@ class SolarEdgeModbusSensor(Entity):
 
     async def modbus_loop(self):
         while True:
-            sleep(0.005)
             try:
-		        
                 reading = self._client.read_holding_registers(40069, 39)
                 if reading:
                     data = BinaryPayloadDecoder.fromRegisters(reading, byteorder=Endian.Big, wordorder=Endian.Big)
