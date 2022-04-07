@@ -255,7 +255,7 @@ class SolarEdgeMeterSensor(Entity):
         return round(floatval, 2)
 
     @property
-    def device_state_attributes(self):
+    def extra_state_attributes(self):
         """Return the state attributes."""
         return self._device_state_attributes
 
