@@ -796,7 +796,6 @@ class SolarEdgeBatterySensor(Entity):
 
     async def modbus_loop(self):
         while True:
-            sleep(0.005)
             try:
 
                 reading = self._client.read_holding_registers(62786, 10)
