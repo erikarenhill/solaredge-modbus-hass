@@ -17,7 +17,6 @@ CONFIG_SCHEMA = vol.Schema(
         vol.Optional("port", default=1502): cv.positive_int,
         vol.Optional(CONF_SCAN_INTERVAL, default=1): cv.positive_int,
         vol.Optional("read_meter1", default=False): cv.boolean,
-        vol.Optional("read_meter2", default=False): cv.boolean,
         vol.Optional("read_battery", default=False): cv.boolean,
     })},
     extra=vol.ALLOW_EXTRA,
@@ -41,6 +40,6 @@ async def async_setup(hass, config):
     _LOGGER.debug("creating modbus client done")
 
     for component in ["sensor"]:
-        discovery.load_platform(hass, component, DOMAIN, {CONF_NAME: DOMAIN, CONF_SCAN_INTERVAL: conf[CONF_SCAN_INTERVAL], "read_meter1": conf["read_meter1"], "read_meter2": conf["read_meter2"], "read_battery": conf["read_battery"]}, config)
+        discovery.load_platform(hass, component, DOMAIN, {CONF_NAME: DOMAIN, CONF_SCAN_INTERVAL: conf[CONF_SCAN_INTERVAL], "read_meter1": conf["read_meter1"], "read_battery": conf["read_battery"]}, config)
 
     return True
