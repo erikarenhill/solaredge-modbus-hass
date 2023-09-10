@@ -75,7 +75,7 @@ class SolarEdgeModbusSensor(Entity):
             try:
                 reading = self._client.read_holding_registers(40069, 39)
                 if reading:
-                    data = BinaryPayloadDecoder.fromRegisters(reading, byteorder=Endian.Big, wordorder=Endian.Big)
+                    data = BinaryPayloadDecoder.fromRegisters(reading, byteorder=Endian.BIG, wordorder=Endian.BIG)
 
                     data.skip_bytes(4)
                     #data.decode_16bit_uint()
@@ -277,7 +277,7 @@ class SolarEdgeMeterSensor(Entity):
                 reading = self._client.read_holding_registers(40188, 107)
                 
                 if reading:
-                    data = BinaryPayloadDecoder.fromRegisters(reading, byteorder=Endian.Big, wordorder=Endian.Big)
+                    data = BinaryPayloadDecoder.fromRegisters(reading, byteorder=Endian.BIG, wordorder=Endian.BIG)
 
                     # Identification
                     # 40188 C_SunSpec_DID (unit16)
