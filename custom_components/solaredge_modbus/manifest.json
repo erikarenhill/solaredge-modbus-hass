@@ -7,7 +7,7 @@
     "codeowners": [],
     "requirements": [
         "pyModbusTCP >= 0.1.8",
-        "pymodbus"
+        "pymodbus >= 3.5.2"
         ]
     }
     
