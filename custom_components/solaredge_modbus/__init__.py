@@ -33,7 +33,7 @@ async def async_setup(hass, config):
     host = conf[CONF_HOST]
     port = conf["port"]
 
-    client = ModbusClient(host, port=port, unit_id=1, auto_open=True)
+    client = ModbusClient(str(host), port=port, unit_id=1, auto_open=True)
     hass.data[DOMAIN] = client
 
     _LOGGER.debug("creating modbus client done")
