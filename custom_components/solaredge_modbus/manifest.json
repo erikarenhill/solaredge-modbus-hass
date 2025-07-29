@@ -6,8 +6,8 @@
     "dependencies": [],
     "codeowners": [],
     "requirements": [
-        "pyModbusTCP >= 0.1.8",
-        "pymodbus >= 3.5.2"
+        "pyModbusTCP>=0.1.8",
+        "pymodbus>=3.5.2"
         ]
     }
     
