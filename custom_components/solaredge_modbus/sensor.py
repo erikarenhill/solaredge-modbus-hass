@@ -25,6 +25,7 @@ SCAN_INTERVAL = timedelta(seconds=5)
 
 values = {}
 meter1_values = {}
+battery_values = {}
 
 async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
     if discovery_info is None:
@@ -34,11 +35,14 @@ async def async_setup_platform(hass, config, async_add_entities, discovery_info=
     client = hass.data.get(SOLAREDGE_DOMAIN)
     scan_interval = discovery_info[CONF_SCAN_INTERVAL]
     useMeter1 = discovery_info["read_meter1"]
+    useBattery = discovery_info["read_battery"]
 
     async_add_entities([SolarEdgeModbusSensor(client, scan_interval)], True)
 
     if useMeter1:
         async_add_entities([SolarEdgeMeterSensor(client, scan_interval)], True)
+    if useBattery:
+        async_add_entities([SolarEdgeBatterySensor(client, scan_interval)], True)
 
 
 class SolarEdgeModbusSensor(Entity):
@@ -498,3 +502,121 @@ class SolarEdgeMeterSensor(Entity):
     @property
     def unique_id(self):
         return "SolarEdge Meter#1"
+
+class SolarEdgeBatterySensor(Entity):
+    def __init__(self, client, scan_interval):
+        _LOGGER.debug("creating modbus battery sensor")
+        print("creating modbus battery sensor")
+
+        self._client = client
+
+        self._scan_interval = scan_interval
+        self._state = 0
+        self._device_state_attributes = {}
+
+    def round(self, floatval):
+        return round(floatval, 2)
+
+    @property
+    def extra_state_attributes(self):
+        """Return the state attributes."""
+        return self._device_state_attributes
+
+    @property
+    def state(self):
+        """Return the state of the device."""
+        return self._state
+
+
+    async def async_added_to_hass(self):
+        _LOGGER.debug("added to hass, starting loop")
+        loop = self.hass.loop
+        task = loop.create_task(self.modbus_loop())
+
+    async def modbus_loop(self):
+        while True:
+            try:
+
+                reading = self._client.read_holding_registers(62786, 10)
+                if reading:
+                    data = BinaryPayloadDecoder.fromRegisters(reading, byteorder=Endian.Big, wordorder=Endian.Little)
+                    #62786 - 2 - rated_size Wh
+                    battery_values['battery_size_rated'] = data.decode_32bit_float()
+                    #62788 - 2 - max charge cont W
+                    battery_values['battery_charge_max_cont_power'] = data.decode_32bit_float()
+                    #62790 - 2 - max discharge cont W
+                    battery_values['battery_discharge_max_cont_power'] = data.decode_32bit_float()
+                    #62792 - 2 - peak charge cont W
+                    battery_values['battery_charge_max_peak_power'] = data.decode_32bit_float()
+                    #62794 - 2 - peak discharge cont W
+                    battery_values['battery_discharge_max_peak_power'] = data.decode_32bit_float()
+
+                reading = self._client.read_holding_registers(62828, 28)
+                if reading:
+                    data = BinaryPayloadDecoder.fromRegisters(reading, byteorder=Endian.Big, wordorder=Endian.Little)
+                    #62828 - 2 - avg temp C
+                    battery_values['battery_temp_avg'] = data.decode_32bit_float()
+                    #62830 - 2 - max temp C
+                    battery_values['battery_temp_max'] = data.decode_32bit_float()
+                    #62832 - 2 - inst volatage V
+                    battery_values['battery_voltage'] = data.decode_32bit_float()
+                    #62834 - 2 - inst amperage A
+                    battery_values['battery_amperage'] = data.decode_32bit_float()
+                    #62836 - 2 - inst power W
+                    battery_values['battery_power'] = data.decode_32bit_float()
+
+                    #62838 - 4 - cum discharged
+                    battery_values['battery_energy_discharged_sum'] = data.decode_64bit_uint()
+                    #62842 - 4 - cum charged
+                    battery_values['battery_energy_charged_sum'] = data.decode_64bit_uint()
+
+                    #62846 - 2 - size WH
+                    battery_values['battery_size_real'] = data.decode_32bit_float()
+                    #62848 - 2 - avialable WH
+                    battery_values['battery_size_available'] = data.decode_32bit_float()
+                    #62850 - 2 - soh
+                    battery_values['battery_state_of_health'] = data.decode_32bit_float()
+                    #62852 - 2 - soc
+                    battery_values['battery_state_of_charge'] = data.decode_32bit_float()
+                    #62852 - 2 - status
+                    battery_values['battery_state'] = data.decode_32bit_uint()
+
+                    self._state = battery_values['battery_power']
+                    self._device_state_attributes = battery_values
+
+                    #tell HA there is new data
+                    self.async_schedule_update_ha_state()
+
+                else:
+                    if self._client.last_error() > 0:
+                        _LOGGER.error(f'error {self._client.last_error()}')
+
+            except Exception as e:
+                _LOGGER.error(f'exception: {e}')
+                print(traceback.format_exc())
+
+            await asyncio.sleep(self._scan_interval)
+
+    @property
+    def name(self):
+        """Return the name of the sensor."""
+        return "SolarEdge Modbus Battery"
+
+    @property
+    def should_poll(self):
+        """Return the polling state."""
+        return False
+
+    @property
+    def icon(self):
+        """Return the icon to use in the frontend."""
+        return ICON
+
+    @property
+    def unit_of_measurement(self):
+        """Return the unit of measurement of this entity."""
+        return "W"
+
+    @property
+    def unique_id(self):
+        return "SolarEdge Battery"
