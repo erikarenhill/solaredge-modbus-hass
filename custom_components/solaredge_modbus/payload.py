@@ -32,24 +32,42 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """
 from __future__ import annotations
 
-
 __all__ = [
     "BinaryPayloadBuilder",
     "BinaryPayloadDecoder",
 ]
 
 from array import array
-
-# pylint: disable=missing-type-doc
 from struct import pack, unpack
 
-from pymodbus.constants import Endian
+# --- Compat: Endian shim for pymodbus>=3.11.0 (constants.Endian removed) ---
+try:
+    # pymodbus < 3.11
+    from pymodbus.constants import Endian as Endian  # type: ignore
+except Exception:
+    # Fallback for pymodbus >= 3.11
+    from enum import Enum
+
+    class Endian(str, Enum):
+        # Uppercase members (as used in this code)
+        BIG = ">"
+        LITTLE = "<"
+        AUTO = "="
+        NATIVE = "@"
+        # Old-style aliases to be extra safe
+        Big = ">"
+        Little = "<"
+        Auto = "="
+        Native = "@"
+# ---------------------------------------------------------------------------
+
 from pymodbus.exceptions import ParameterException
 from pymodbus.logging import Log
 from .utilities import (
     pack_bitstring,
     unpack_bitstring,
 )
+
 
 
 class BinaryPayloadBuilder:

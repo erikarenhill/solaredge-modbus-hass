@@ -1,18 +1,34 @@
 import datetime
 import asyncio
 import traceback
-
 from time import sleep
-
 from datetime import timedelta
 import logging
 
 from homeassistant.const import CONF_SCAN_INTERVAL
 
 from pyModbusTCP.client import ModbusClient
-from pymodbus.constants import Endian
+
+# --- Compat: Endian shim for pymodbus>=3.11.0 (constants.Endian removed) ---
+try:
+    # pymodbus < 3.11
+    from pymodbus.constants import Endian as Endian  # type: ignore
+except Exception:
+    from enum import Enum
+    class Endian(str, Enum):
+        BIG = ">"
+        LITTLE = "<"
+        AUTO = "="
+        NATIVE = "@"
+        # aliases (alte Schreibweisen)
+        Big = ">"
+        Little = "<"
+        Auto = "="
+        Native = "@"
+# ---------------------------------------------------------------------------
 
 from .payload import BinaryPayloadDecoder
+
 
 from homeassistant.helpers.entity import Entity
 
