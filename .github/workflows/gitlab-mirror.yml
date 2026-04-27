@@ -1,0 +1,38 @@
+name: Mirror to GitLab
+
+on:
+  push:
+    branches: ['**']
+    tags: ['**']
+  delete:
+  schedule:
+    - cron: '17 3 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: gitlab-mirror
+  cancel-in-progress: false
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Mirror repository to GitLab
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
+        run: |
+          set -euo pipefail
+          GITLAB_HOST="gitlab.krasm.de"
+          GITLAB_NAMESPACE="mkrasselt1"
+          REPO_NAME="${GITHUB_REPOSITORY##*/}"
+
+          if [[ -z "${GITLAB_TOKEN:-}" ]]; then
+            echo "::error::GITLAB_TOKEN secret is not set in this repository"
+            exit 1
+          fi
+
+          git clone --mirror "https://x-access-token:${GH_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" repo.git
+          cd repo.git
+          git remote set-url --push origin "https://oauth2:${GITLAB_TOKEN}@${GITLAB_HOST}/${GITLAB_NAMESPACE}/${REPO_NAME}.git"
+          git push --mirror
