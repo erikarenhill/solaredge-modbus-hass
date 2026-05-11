@@ -9,6 +9,6 @@
         "pyModbusTCP>=0.1.8",
         "pymodbus>=3.5.2"
     ],
-    "version": "0.1.9"
+    "version": "0.2.0"
 }
     
