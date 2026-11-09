@@ -555,7 +555,7 @@ class SolarEdgeBatterySensor(Entity):
 
                 reading = self._client.read_holding_registers(62786, 10)
                 if reading:
-                    data = BinaryPayloadDecoder.fromRegisters(reading, byteorder=Endian.Big, wordorder=Endian.Little)
+                    data = BinaryPayloadDecoder.fromRegisters(reading, byteorder=Endian.BIG, wordorder=Endian.LITTLE)
                     #62786 - 2 - rated_size Wh
                     battery_values['battery_size_rated'] = data.decode_32bit_float()
                     #62788 - 2 - max charge cont W
@@ -569,7 +569,7 @@ class SolarEdgeBatterySensor(Entity):
 
                 reading = self._client.read_holding_registers(62828, 28)
                 if reading:
-                    data = BinaryPayloadDecoder.fromRegisters(reading, byteorder=Endian.Big, wordorder=Endian.Little)
+                    data = BinaryPayloadDecoder.fromRegisters(reading, byteorder=Endian.BIG, wordorder=Endian.LITTLE)
                     #62828 - 2 - avg temp C
                     battery_values['battery_temp_avg'] = data.decode_32bit_float()
                     #62830 - 2 - max temp C
@@ -594,7 +594,7 @@ class SolarEdgeBatterySensor(Entity):
                     battery_values['battery_state_of_health'] = data.decode_32bit_float()
                     #62852 - 2 - soc
                     battery_values['battery_state_of_charge'] = data.decode_32bit_float()
-                    #62852 - 2 - status
+                    #62854 - 2 - status (0 Off, 1 Standby, 2 Init, 3 Charge, 4 Discharge, 5 Fault, 7 Idle)
                     battery_values['battery_state'] = data.decode_32bit_uint()
 
                     self._state = battery_values['battery_power']

@@ -23,6 +23,10 @@ Copy custom_components/solaredge_modbus to your hass data directory (where your 
 
 See [sample-configuration.yaml](sample-configuration.yaml) for information how to configure, and how to extract attributes into custom template sensors.
 
+# Enable readings from a battery
+
+Add `read_battery: true` to the configuration block. This adds `sensor.solaredge_modbus_battery`, whose state is the battery power in W (positive while charging). The other readings are attributes that you can turn into template sensors: `battery_state_of_charge`, `battery_state_of_health`, `battery_state`, `battery_energy_charged_sum` and `battery_energy_discharged_sum` (Wh, for the Energy dashboard), plus temperature, voltage, current and capacity. Thanks to [Duell10111](https://github.com/Duell10111) and [mkrasselt1](https://github.com/mkrasselt1) for the code.
+
 # Upgrading from the old `platform: template` format
 
 Home Assistant no longer supports template sensors defined under `sensor:` with `platform: template`, the format earlier versions of `sample-configuration.yaml` used. After upgrading Home Assistant, every sensor defined that way disappears, and any utility meter built on them (such as `solar_production_daily`) stops counting. Home Assistant shows a Repairs issue for `platform: template` and logs:
