@@ -21,7 +21,53 @@ Add custom repository: https://github.com/erikarenhill/solaredge-modbus-hass/
 Or manual install:
 Copy custom_components/solaredge_modbus to your hass data directory (where your configuration.yaml lives). It should go into the same directory structure (YOUR_CONFIG_DIRECTORY/custom_components/solaredge_modbus)
 
-See sample-configuration.yaml for information how to configure, and how to extract attributes into custom template sensors.
+See [sample-configuration.yaml](sample-configuration.yaml) for information how to configure, and how to extract attributes into custom template sensors.
+
+# Upgrading from the old `platform: template` format
+
+Home Assistant no longer supports template sensors defined under `sensor:` with `platform: template`, the format earlier versions of `sample-configuration.yaml` used. After upgrading Home Assistant, every sensor defined that way disappears, and any utility meter built on them (such as `solar_production_daily`) stops counting. Home Assistant shows a Repairs issue for `platform: template` and logs:
+
+```
+Configuring the template integration under the sensor platform key is not supported, it must be configured under its own template key instead
+```
+
+The integration itself keeps working: `sensor.solaredge_modbus` and its attributes are still updated. Only the template sensors are gone.
+
+To fix it, move the template sensors to the top-level `template:` key, as in the current [sample-configuration.yaml](sample-configuration.yaml). Set `default_entity_id` to the old entity ID so utility meters, automations, dashboards and history keep working:
+
+Old format:
+
+```yaml
+sensor:
+  - platform: template
+    sensors:
+      solaredge_lifetime_production:
+        friendly_name: "Lifetime production"
+        value_template: "{{ (state_attr('sensor.solaredge_modbus', 'ac_lifetimeproduction') / 1000.0) | round(2) }}"
+        unit_of_measurement: 'kWh'
+```
+
+New format:
+
+```yaml
+template:
+  - sensor:
+      - default_entity_id: sensor.solaredge_lifetime_production
+        name: "Lifetime production"
+        unit_of_measurement: "kWh"
+        device_class: energy
+        state_class: total_increasing
+        availability: "{{ state_attr('sensor.solaredge_modbus', 'ac_lifetimeproduction') | float(0) > 0 }}"
+        state: "{{ (state_attr('sensor.solaredge_modbus', 'ac_lifetimeproduction') / 1000.0) | round(2) }}"
+```
+
+The key renames are `friendly_name` → `name`, `value_template` → `state`, and the object key → `default_entity_id`. Check the configuration and restart Home Assistant afterwards.
+
+Utility meters built on these sensors start counting again from the current reading. The energy produced while the sensor was missing is not added to the meters.
+
+# Energy dashboard
+
+To use solar production in the Energy dashboard, select `sensor.solaredge_lifetime_production` (or a utility meter built on it) as the solar production source. It needs `device_class: energy` and `state_class: total_increasing`, as in the sample configuration.
 
 # Enable readings from external RS485 meter
 
