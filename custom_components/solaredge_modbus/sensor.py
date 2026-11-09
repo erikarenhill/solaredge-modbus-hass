@@ -1,17 +1,34 @@
 import datetime
 import asyncio
 import traceback
-
 from time import sleep
-
 from datetime import timedelta
 import logging
 
 from homeassistant.const import CONF_SCAN_INTERVAL
 
 from pyModbusTCP.client import ModbusClient
-from pymodbus.constants import Endian
-from pymodbus.payload import BinaryPayloadDecoder
+
+# --- Compat: Endian shim for pymodbus>=3.11.0 (constants.Endian removed) ---
+try:
+    # pymodbus < 3.11
+    from pymodbus.constants import Endian as Endian  # type: ignore
+except Exception:
+    from enum import Enum
+    class Endian(str, Enum):
+        BIG = ">"
+        LITTLE = "<"
+        AUTO = "="
+        NATIVE = "@"
+        # aliases (alte Schreibweisen)
+        Big = ">"
+        Little = "<"
+        Auto = "="
+        Native = "@"
+# ---------------------------------------------------------------------------
+
+from .payload import BinaryPayloadDecoder
+
 
 from homeassistant.helpers.entity import Entity
 
@@ -79,7 +96,7 @@ class SolarEdgeModbusSensor(Entity):
             try:
                 reading = self._client.read_holding_registers(40069, 39)
                 if reading:
-                    data = BinaryPayloadDecoder.fromRegisters(reading, byteorder=Endian.Big, wordorder=Endian.Big)
+                    data = BinaryPayloadDecoder.fromRegisters(reading, byteorder=Endian.BIG, wordorder=Endian.BIG)
 
                     data.skip_bytes(4)
                     #data.decode_16bit_uint()
@@ -281,7 +298,7 @@ class SolarEdgeMeterSensor(Entity):
                 reading = self._client.read_holding_registers(40188, 107)
                 
                 if reading:
-                    data = BinaryPayloadDecoder.fromRegisters(reading, byteorder=Endian.Big, wordorder=Endian.Big)
+                    data = BinaryPayloadDecoder.fromRegisters(reading, byteorder=Endian.BIG, wordorder=Endian.BIG)
 
                     # Identification
                     # 40188 C_SunSpec_DID (unit16)
