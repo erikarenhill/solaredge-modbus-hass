@@ -29,6 +29,8 @@ except Exception:
 
 from .payload import BinaryPayloadDecoder
 
+import threading
+
 
 from homeassistant.helpers.entity import Entity
 
@@ -42,6 +44,15 @@ SCAN_INTERVAL = timedelta(seconds=5)
 values = {}
 meter1_values = {}
 battery_values = {}
+
+# The sensors share one ModbusClient, which is not thread-safe.
+_modbus_lock = threading.Lock()
+
+
+def _read_registers(client, address, count):
+    with _modbus_lock:
+        return client.read_holding_registers(address, count)
+
 
 async def async_setup_platform(hass, config, async_add_entities, discovery_info=None):
     if discovery_info is None:
@@ -94,7 +105,7 @@ class SolarEdgeModbusSensor(Entity):
     async def modbus_loop(self):
         while True:
             try:
-                reading = self._client.read_holding_registers(40069, 39)
+                reading = await self.hass.async_add_executor_job(_read_registers, self._client, 40069, 39)
                 if reading:
                     data = BinaryPayloadDecoder.fromRegisters(reading, byteorder=Endian.BIG, wordorder=Endian.BIG)
 
@@ -169,7 +180,7 @@ class SolarEdgeModbusSensor(Entity):
                     lifetime = data.decode_32bit_uint()
 
                     #40095
-                    lifetimeScaleFactor = 10**data.decode_16bit_uint()
+                    lifetimeScaleFactor = 10**data.decode_16bit_int()
 
                     #Total production entire lifetime
                     values['ac_lifetimeproduction'] = self.round(lifetime * lifetimeScaleFactor)
@@ -295,7 +306,7 @@ class SolarEdgeMeterSensor(Entity):
         while True:
             try:
 		        
-                reading = self._client.read_holding_registers(40188, 107)
+                reading = await self.hass.async_add_executor_job(_read_registers, self._client, 40188, 107)
                 
                 if reading:
                     data = BinaryPayloadDecoder.fromRegisters(reading, byteorder=Endian.BIG, wordorder=Endian.BIG)
@@ -370,7 +381,7 @@ class SolarEdgeMeterSensor(Entity):
                     meter1_values['ac_power_output'] = self.round(m1_ac_power_output * m1_ac_power_scalefactor)
 
                     #40211 Apparent Power
-                    m1_ac_va = data.decode_16bit_uint()
+                    m1_ac_va = data.decode_16bit_int()
 
                     data.skip_bytes(6) # Skip the phases
 
@@ -378,7 +389,7 @@ class SolarEdgeMeterSensor(Entity):
                     meter1_values['ac_va'] = self.round(m1_ac_va * m1_ac_va_scalefactor)
 
                     #40216 Reactive Power
-                    m1_ac_var = data.decode_16bit_uint()
+                    m1_ac_var = data.decode_16bit_int()
 
                     data.skip_bytes(6) # Skip the phases
 
@@ -386,7 +397,7 @@ class SolarEdgeMeterSensor(Entity):
                     meter1_values['ac_var'] = self.round(m1_ac_var * m1_ac_var_scalefactor)
 
                     #40221 Power Factor
-                    m1_ac_pf = data.decode_16bit_uint()
+                    m1_ac_pf = data.decode_16bit_int()
 
                     data.skip_bytes(6) # Skip the phases
 
@@ -408,8 +419,8 @@ class SolarEdgeMeterSensor(Entity):
                     m1_imported = data.decode_32bit_uint()
                     data.skip_bytes(12) # Skip phases
 
-                    #40095
-                    m1_energy_scalefactor = 10**data.decode_16bit_uint()
+                    #40242
+                    m1_energy_scalefactor = 10**data.decode_16bit_int()
 
                     # Total production entire lifetime
                     meter1_values['exported'] = self.round(m1_exported * m1_energy_scalefactor)
@@ -427,7 +438,7 @@ class SolarEdgeMeterSensor(Entity):
                     data.skip_bytes(12) # Skip phases
 
                     #40259
-                    m1_energy_va_scalefactor = 10**data.decode_16bit_uint()
+                    m1_energy_va_scalefactor = 10**data.decode_16bit_int()
 
                     # Total production entire lifetime
                     meter1_values['exported_va'] = self.round(m1_exported_va * m1_energy_va_scalefactor)
@@ -453,7 +464,7 @@ class SolarEdgeMeterSensor(Entity):
                     data.skip_bytes(12) # Skip phases
 
                     #40293
-                    m1_energy_var_scalefactor = 10**data.decode_16bit_uint()
+                    m1_energy_var_scalefactor = 10**data.decode_16bit_int()
 
                     # Total production entire lifetime
                     meter1_values['imported_var_q1'] = self.round(m1_imported_var_q1 * m1_energy_var_scalefactor)
@@ -553,7 +564,7 @@ class SolarEdgeBatterySensor(Entity):
         while True:
             try:
 
-                reading = self._client.read_holding_registers(62786, 10)
+                reading = await self.hass.async_add_executor_job(_read_registers, self._client, 62786, 10)
                 if reading:
                     data = BinaryPayloadDecoder.fromRegisters(reading, byteorder=Endian.BIG, wordorder=Endian.LITTLE)
                     #62786 - 2 - rated_size Wh
@@ -567,7 +578,7 @@ class SolarEdgeBatterySensor(Entity):
                     #62794 - 2 - peak discharge cont W
                     battery_values['battery_discharge_max_peak_power'] = data.decode_32bit_float()
 
-                reading = self._client.read_holding_registers(62828, 28)
+                reading = await self.hass.async_add_executor_job(_read_registers, self._client, 62828, 28)
                 if reading:
                     data = BinaryPayloadDecoder.fromRegisters(reading, byteorder=Endian.BIG, wordorder=Endian.LITTLE)
                     #62828 - 2 - avg temp C
