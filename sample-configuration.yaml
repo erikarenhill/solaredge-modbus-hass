@@ -5,6 +5,7 @@ solaredge_modbus:
     port: 1502
     scan_interval: 5 #Optional: time in seconds between readings. Recommended value is at fastest 2-3 sec, default 5
     read_meter1: false #Optional: set this to true if you have an external modbus meter connected with RS485 for reading self consumption
+    read_battery: false #Optional: set this to true if you have a SolarEdge-connected battery (adds sensor.solaredge_modbus_battery)
 
 utility_meter:
   solar_production_daily:
